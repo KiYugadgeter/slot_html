@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <title>スロットマシーン(そろっても特になし)</title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <div id="container">
+            <ul id="rotors">
+                <li>
+                    <span id="roter1" data-num="1">1</span>
+                    <button id="b1" data-num="1">Stop</button>
+                </li>
+                <li>
+                    <span id="roter2" data-num="2">2</span>
+                    <button id="b2" data-num="2">Stop</button>
+                </li>
+                <li>
+                    <span id="roter3" data-num="3">3</span>
+                    <button id="b3" data-num="3">Stop</button>
+                </li>
+            </ul>
+            <button id="restart">もう一回やる</button>
+        </div>
+        <style>
+            li {
+                text-align: center;
+                font-size: 20px;
+            }
+
+            ul > li {
+                display: inline-block;
+                list-style: none;
+            }
+
+            div#container {
+                width: 800px;
+            }
+
+            li button {
+                display: block;
+                width: 40px;
+                height: 60px;
+                padding: 0
+            }
+
+            button#restart {
+                display: none;
+                width: 100px;
+                height: 100px;
+                padding: 0;
+            }
+
+        </style>
+        <script>
+            let timers = [undefined, undefined, undefined];
+            let results = [];
+            function random_number(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            function do_slot(elem, num) {
+                randomize(elem);
+                timers[num] = setTimeout(do_slot, 10, elem, num)
+            }
+
+            function randomize(elem) {
+                elem.innerText = String(random_number(0, 9));
+            }
+
+            function generate_onclick(num) {
+                const roter = document.getElementById("roter" + String(num+1));
+                return function onclick(e) {
+                    const index = parseInt(num);
+                    clearTimeout(timers[index]);
+                    const result = roter.innerText;
+                    results.push(parseInt(result));
+                    e.target.disabled = true;
+                    if (results.length === 3) {
+                        restart_button.style.display = "block";
+                        if (results.every((currentValue) => currentValue === 7)) {
+                            alert("おめでとう!!! 777!");
+                        }
+                        else {
+                            alert(results.join(", "));
+                        }
+                    }
+
+                }
+            }
+            const roter1 = document.getElementById("roter1");
+            const roter2 = document.getElementById("roter2");
+            const roter3 = document.getElementById("roter3");
+
+
+            const button1 = document.getElementById("b1");
+            const button2 = document.getElementById("b2");
+            const button3 = document.getElementById("b3");
+            button1.onclick = generate_onclick(0);
+            button2.onclick = generate_onclick(1);
+            button3.onclick = generate_onclick(2);
+            const restart_button = document.getElementById("restart");
+
+
+            function start() {
+                button1.disabled = false;
+                button2.disabled = false;
+                button3.disabled = false;
+                restart_button.style.display = "none";
+                timers = [undefined, undefined, undefined];
+                results = [];
+                do_slot(roter1, 0);
+                do_slot(roter2, 1);
+                do_slot(roter3, 2);
+            }
+
+            restart_button.onclick = start;
+
+            start();
+        </script>
+    </body>
+</html>
